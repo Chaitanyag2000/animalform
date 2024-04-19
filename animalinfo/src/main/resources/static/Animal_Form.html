@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animal Form</title>
+
+    <style>
+
+        /* Form styling */
+#animalForm {
+    width: 300px; /* Adjust as needed */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 3px;
+    background-color: #f9f9f9;
+    display: flex;
+    flex-direction: column; /* Display items in a vertical line */
+    align-items: center; /* Center items horizontally */
+}
+
+#animalForm h2 {
+    text-align: center;
+    width: 100%; /* Ensure h2 takes full width */
+}
+
+#animalForm label {
+    display: block;
+    margin-bottom: 10px;
+    width: 100%; /* Adjust label width */
+}
+
+#animalForm input[type="text"],
+#animalForm select,
+#animalForm textarea {
+    width: calc(100% - 22px); /* Adjust input width */
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+/* Delete button */
+.delete-button {
+    width: 80%; /* Adjust button width */
+    padding: 10px;
+    background-color: #FF0000; /* Red color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+/* Save and Update button */
+#animalForm button {
+    width: 80%; /* Adjust button width */
+    padding: 10px;
+    background-color: #4CAF50; /* Green color */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-bottom: 10px; /* Add margin between buttons */
+}
+
+#animalForm button:hover {
+    background-color: #45a049;
+}
+
+
+    </style>
+</head>
+<body>
+<div class="container">
+    <div id="animalForm">
+        <h2>Animal Form</h2>
+            <form action="/animal/save" method="POST" enctype="multipart/form-data">
+
+            <label for="animalName">Animal Name:</label>
+            <input type="text" id="animalName" name="animalName" required>
+            <br>
+            <label for="animalCategory">Animal Category:</label>
+            <select id="animalCategory" name="animalCategory">
+                <option value="mammals">Mammals</option>
+                <option value="birds">Birds</option>
+                <option value="reptiles">Reptiles</option>
+                <option value="amphibians">Amphibians</option>
+                <option value="fish">Fish</option>
+                <option value="arthropods">Arthropods</option>
+                <option value="mollusks">Mollusks</option>
+                <option value="echinoderms">Echinoderms</option>
+            </select>
+            <br>
+            <label for="animalDescription">Animal Description:</label>
+            <textarea id="animalDescription" name="animalDescription" required></textarea>
+            <br>
+            <label for="animalLifeExpectancy">Animal Life Expectancy:</label>
+            <select id="animalLifeExpectancy" name="animalLifeExpectancy">
+                <option value="0-2">0-2 years</option>
+                <option value="2-5">2-5 years</option>
+                <option value="5-10">5-10 years</option>
+                <option value="10-15">10-15 years</option>
+                <option value="15-20">15-20 years</option>
+            </select>
+            <br>
+             <label for="imageFile">Upload Image:</label>
+             <input type="file" id="imageFile" name="animalImage" accept="image/*" required>
+             <br>
+            <button type="submit">Submit</button>
+
+            <br>
+            <button onclick="updateAnimal()">Update Animal</button>
+            <br>
+            <button onclick="deleteAnimal()">Delete Animal</button>
+            <br>
+            <button onclick="deleteAllAnimals()">Delete All Animals</button>
+
+        </form>
+    </div>
+</div>
+
+
+<script>
+
+
+    // Save an animal
+    function save(animal) {
+      fetch('/animal/save', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(animal)
+      })
+      .then(response => response.json())
+      .then(savedAnimal => {
+        // Process the saved animal data
+        console.log('Animal saved:', savedAnimal);
+      })
+      .catch(error => {
+        console.error('Error saving animal:', error);
+      });
+    }
+
+    // Update an animal
+function updateAnimal() {
+    const animalId = document.getElementById('animalIdToUpdate').value;
+    const animal = {
+        animalName: document.getElementById('animalName').value,
+        animalCategory: document.getElementById('animalCategory').value,
+        animalDescription: document.getElementById('animalDescription').value,
+        animalLifeExpectancy: document.getElementById('animalLifeExpectancy').value
+    };
+
+    fetch(`/animal/update/${animalId}`, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(animal)
+    })
+    .then(response => response.json())
+    .then(updatedAnimal => {
+        console.log('Animal updated:', updatedAnimal);
+    })
+    .catch(error => {
+        console.error('Error updating animal:', error);
+    });
+}
+
+// Delete an animal
+function deleteAnimal() {
+    const animalId = document.getElementById('animalIdToDelete').value;
+
+    fetch(`/animal/deletebyanimalid/${animalId}`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('Animal deleted successfully');
+        } else {
+            throw new Error('Error deleting animal');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting animal:', error);
+    });
+}
+
+// Delete all animals
+function deleteAllAnimals() {
+    fetch(`/animal/deleteall`, {
+        method: 'DELETE'
+    })
+    .then(response => {
+        if (response.ok) {
+            console.log('All animals deleted successfully');
+        } else {
+            throw new Error('Error deleting all animals');
+        }
+    })
+    .catch(error => {
+        console.error('Error deleting all animals:', error);
+    });
+}
+
+
+    // Example usage:
+    // Call fetchAnimals() to fetch all animals
+    // Call saveAnimal(animalData) to save an animal, where animalData is the data of the animal you want to save
+</script>
+</body>
+</html>
